@@ -37,8 +37,8 @@ const app = express();
 app.use(express.json());
 
 const corsOptions = {
-  origin: "http://localhost:3001",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  origin: "*",
+  //methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
 };
 //app.use(cors()) 
