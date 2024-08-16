@@ -95,7 +95,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/profiles', profileRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/posts', postRoutes);
+app.use('/api', postRoutes);
 app.use('/api/message', messageRoutes);
 
 // Initialize WebSocket controller
