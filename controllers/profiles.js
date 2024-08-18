@@ -60,6 +60,65 @@ export const createProfile = async (req, res) => {
   }
 };
 
+// check username availability
+export const checkUsernameAvailability = async (req, res) => {
+  const { username } = req.query;
+  if (!username) {
+    return res.status(400).send({ error: "Username is required" });
+  }
+
+  try {
+    const profile = await Profile.findOne({ username });
+    if (profile) {
+      return res.status(200).send({ isAvailable: false });
+    } else {
+      return res.status(200).send({ isAvailable: true });
+    }
+  } catch (error) {
+    console.error("Error checking username availability", error);
+    return res.status(500).send({ error: "Internal server error" });
+  }
+};
+
+// Fetch profile details
+export const getProfileDetails = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const profile = await Profile.findOne({ userId })
+      .populate("userId")
+      .populate("followers")
+      .populate("following");
+
+    if (!profile) {
+      return res.status(404).json({ message: "Profile not found" });
+    }
+
+    res.status(200).json({
+      username: profile.username,
+      fullname: profile.fullName,
+      email: profile.email,
+      bio: profile.bio,
+      backgroundImage: profile.backgroundImage,
+      profileImage: profile.profileImage,
+      location: profile.location,
+      designation: profile.designation,
+      company: profile.company,
+      website: profile.website,
+      industries: profile.industries,
+      experience: profile.experience,
+      education: profile.education,
+      skills: profile.skillSets,
+      achievements: profile.achievements,
+      employment: profile.employment,
+      followers: profile.followers,
+      following: profile.following,
+    });
+  } catch (error) {
+    console.error("Error fetching profile details:", error);
+    res.status(500).json({ message: "Error fetching profile details" });
+  }
+};
+
 // Fetch chat profile details
 export const getChatProfileDetails = async (req, res) => {
   try {
