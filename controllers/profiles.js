@@ -2,6 +2,7 @@ import Profile from "../models/Profile.js";
 
 export const createProfile = async (req, res) => {
   try {
+    console.log("Incoming request body:", req.body);
     const {
       fullName,
       username,
