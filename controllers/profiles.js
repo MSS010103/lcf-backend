@@ -10,17 +10,21 @@ export const createProfile = async (req, res) => {
       experience,
       education,
       achievements,
+      profileImage, // This will now come from req.body as a URL
       designation,
       company,
+      backgroundImage, // This will now come from req.body as a URL
       website,
       location,
       industries,
       skillSets,
       employment,
     } = req.body;
-const parsedSkillSets =
-  typeof skillSets === "string" ? JSON.parse(skillSets) : skillSets;
 
+    const parsedSkillSets =
+      typeof skillSets === "string" ? JSON.parse(skillSets) : skillSets;
+
+    // Create a new profile instance
     const profile = new Profile({
       userId: req.user.userId,
       fullName,
@@ -30,14 +34,10 @@ const parsedSkillSets =
       experience,
       education,
       achievements,
-      profileImage: req.files["profileImage"]
-        ? req.files["profileImage"][0].filename
-        : null,
+      profileImage: profileImage || null, // Use the URL from req.body
       designation,
       company,
-      backgroundImage: req.files["backgroundImage"]
-        ? req.files["backgroundImage"][0].filename
-        : null,
+      backgroundImage: backgroundImage || null, // Use the URL from req.body
       website,
       location,
       industries,
@@ -45,79 +45,18 @@ const parsedSkillSets =
       employment,
     });
 
+    // Save the profile to the database
     await profile.save();
 
-    res
-      .status(200)
-      .json({
-        message: "Profile submitted successfully",
-        url: `/profile/${profile._id}`,
-      });
-     
+    res.status(200).json({
+      message: "Profile submitted successfully",
+      url: `/profile/${profile._id}`,
+    });
   } catch (error) {
     console.error("Error submitting profile:", error);
     res
       .status(500)
       .json({ message: "Error storing data. Please try again later." });
-  }
-};
-
-// check username availability
-export const checkUsernameAvailability = async (req, res) => {
-  const { username } = req.query;
-  if (!username) {
-    return res.status(400).send({ error: "Username is required" });
-  }
-
-  try {
-    const profile = await Profile.findOne({ username });
-    if (profile) {
-      return res.status(200).send({ isAvailable: false });
-    } else {
-      return res.status(200).send({ isAvailable: true });
-    }
-  } catch (error) {
-    console.error("Error checking username availability", error);
-    return res.status(500).send({ error: "Internal server error" });
-  }
-};
-
-// Fetch profile details
-export const getProfileDetails = async (req, res) => {
-  try {
-    const { userId } = req.user;
-    const profile = await Profile.findOne({ userId })
-      .populate("userId")
-      .populate("followers")
-      .populate("following");
-
-    if (!profile) {
-      return res.status(404).json({ message: "Profile not found" });
-    }
-
-    res.status(200).json({
-      username: profile.username,
-      fullname: profile.fullName,
-      email: profile.email,
-      bio: profile.bio,
-      backgroundImage: profile.backgroundImage,
-      profileImage: profile.profileImage,
-      location: profile.location,
-      designation: profile.designation,
-      company: profile.company,
-      website: profile.website,
-      industries: profile.industries,
-      experience: profile.experience,
-      education: profile.education,
-      skills: profile.skillSets,
-      achievements: profile.achievements,
-      employment: profile.employment,
-      followers: profile.followers,
-      following: profile.following,
-    });
-  } catch (error) {
-    console.error("Error fetching profile details:", error);
-    res.status(500).json({ message: "Error fetching profile details" });
   }
 };
 
@@ -142,14 +81,18 @@ export const getChatProfileDetails = async (req, res) => {
 export const getFollowers = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const user = await Profile.findOne({ userId: userId }).populate('followers');
-    
+    const user = await Profile.findOne({ userId: userId }).populate(
+      "followers"
+    );
+
     if (!user) {
-      return res.status(404).send('User not found');
+      return res.status(404).send("User not found");
     }
 
-    const followersIds = user.followers.map(follower => follower.userId.toString());
-   
+    const followersIds = user.followers.map((follower) =>
+      follower.userId.toString()
+    );
+
     res.json(followersIds);
   } catch (err) {
     res.status(500).send(err);
@@ -160,13 +103,17 @@ export const getFollowers = async (req, res) => {
 export const getFollowing = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const user = await Profile.findOne({ userId: userId }).populate('following');
-    
+    const user = await Profile.findOne({ userId: userId }).populate(
+      "following"
+    );
+
     if (!user) {
-      return res.status(404).send('User not found');
+      return res.status(404).send("User not found");
     }
 
-    const followersIds = user.followers.map(follower => follower._id.toString());
+    const followersIds = user.followers.map((follower) =>
+      follower._id.toString()
+    );
     res.json(followersIds);
   } catch (err) {
     res.status(500).send(err);
@@ -198,11 +145,9 @@ export const getUserDetails = async (req, res) => {
   }
 };
 
-
 // Check profile
 export const checkProfile = async (req, res) => {
   try {
-    
     const userId = req.params.userId;
     const profile = await Profile.findOne({ userId: userId });
     console.log(profile);
@@ -238,20 +183,22 @@ export const getFollowStatus = async (req, res) => {
   const currentUserId = req.user.userId; // Assuming you have user ID from authentication middleware
   console.log(currentUserId);
   if (!currentUserId) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401).json({ message: "Unauthorized" });
   }
   try {
     const user = await Profile.findOne({ username });
     console.log(user);
     if (user) {
-      const isFollowing = user.followers.some(follower => follower.userId.toString() === currentUserId.toString());
+      const isFollowing = user.followers.some(
+        (follower) => follower.userId.toString() === currentUserId.toString()
+      );
       console.log(isFollowing);
       res.json({ isFollowing });
     } else {
-      res.status(404).json({ message: 'User not found' });
+      res.status(404).json({ message: "User not found" });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching follow status' });
+    res.status(500).json({ message: "Error fetching follow status" });
   }
 };
 
@@ -264,40 +211,43 @@ export const followUser = async (req, res) => {
     const userToFollow = await Profile.findOne({ username });
     const currentUser = await Profile.findOne({ userId: currentUserId });
     if (!userToFollow) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     if (!userToFollow.followers.includes(currentUserId)) {
-      userToFollow.followers.push({  
+      userToFollow.followers.push({
         userId: currentUserId,
         username: currentUser.username,
-        profileImage: currentUser.profileImage});
+        profileImage: currentUser.profileImage,
+      });
       userToFollow.followers = [...new Set(userToFollow.followers)];
       await userToFollow.save();
     } else {
-      return res.status(400).json({ message: 'Already following this user' });
+      return res.status(400).json({ message: "Already following this user" });
     }
 
-    
     if (!currentUser) {
-      return res.status(404).json({ message: 'Current user not found' });
+      return res.status(404).json({ message: "Current user not found" });
     }
 
     if (!currentUser.following.includes(userToFollow.userId)) {
-      currentUser.following.push({  
+      currentUser.following.push({
         userId: userToFollow.userId,
         username: userToFollow.username,
-        profileImage: userToFollow.profileImage});
+        profileImage: userToFollow.profileImage,
+      });
       currentUser.following = [...new Set(currentUser.following)];
       await currentUser.save();
       console.log("User followed");
-      res.json({ message: 'User followed successfully' });
+      res.json({ message: "User followed successfully" });
     } else {
-      res.status(400).json({ message: 'Already following this user' });
+      res.status(400).json({ message: "Already following this user" });
     }
   } catch (error) {
-    console.error('Error following user:', error);
-    res.status(500).json({ message: 'Error following user', error: error.message });
+    console.error("Error following user:", error);
+    res
+      .status(500)
+      .json({ message: "Error following user", error: error.message });
   }
 };
 
@@ -306,66 +256,78 @@ export const unfollowUser = async (req, res) => {
   const { username } = req.params;
   const currentUserId = req.user.userId; // Assuming you have user ID from authentication middleware
 
-  console.log('Current User ID:', currentUserId);
-  console.log('Username to unfollow:', username);
+  console.log("Current User ID:", currentUserId);
+  console.log("Username to unfollow:", username);
 
   try {
     const user = await Profile.findOne({ username });
     if (!user) {
-      console.error('User not found:', username);
-      return res.status(404).json({ message: 'User not found' });
+      console.error("User not found:", username);
+      return res.status(404).json({ message: "User not found" });
     }
 
-    if (!user.followers.some(follower => follower.userId.toString() === currentUserId)) {
-      console.error('Not following this user:', username);
-      return res.status(400).json({ message: 'Not following this user' });
+    if (
+      !user.followers.some(
+        (follower) => follower.userId.toString() === currentUserId
+      )
+    ) {
+      console.error("Not following this user:", username);
+      return res.status(400).json({ message: "Not following this user" });
     }
 
     // Remove current user from the user's followers
-    user.followers = user.followers.filter(follower => follower.userId.toString() !== currentUserId);
+    user.followers = user.followers.filter(
+      (follower) => follower.userId.toString() !== currentUserId
+    );
     await user.save();
 
-     // Remove the user from the current user's following
-     const currentUser = await Profile.findOne({ userId: currentUserId });
-     if (!currentUser) {
-       console.error('Current user profile not found:', currentUserId);
-       return res.status(404).json({ message: 'Current user profile not found' });
-     }
- 
-     currentUser.following = currentUser.following.filter(following => following.userId.toString() !== user._id.toString());
-     await currentUser.save();
- 
-     res.json({ message: 'User unfollowed successfully' });
-   } catch (error) {
-     console.error('Error unfollowing user:', error);
-     res.status(500).json({ message: 'Error unfollowing user' });
-   }
+    // Remove the user from the current user's following
+    const currentUser = await Profile.findOne({ userId: currentUserId });
+    if (!currentUser) {
+      console.error("Current user profile not found:", currentUserId);
+      return res
+        .status(404)
+        .json({ message: "Current user profile not found" });
+    }
+
+    currentUser.following = currentUser.following.filter(
+      (following) => following.userId.toString() !== user._id.toString()
+    );
+    await currentUser.save();
+
+    res.json({ message: "User unfollowed successfully" });
+  } catch (error) {
+    console.error("Error unfollowing user:", error);
+    res.status(500).json({ message: "Error unfollowing user" });
+  }
 };
 
-export const getFollowersDetails = async(req, res) => {
+export const getFollowersDetails = async (req, res) => {
   const { userId } = req.params;
 
   try {
     const user = await Profile.findOne({ userId });
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    const followersDetails = user.followers.map(follower => ({
+    const followersDetails = user.followers.map((follower) => ({
       userId: follower.userId,
       username: follower.username,
-      profileImage: follower.profileImage
+      profileImage: follower.profileImage,
     }));
 
     res.json({ followers: followersDetails });
   } catch (error) {
-    console.error('Error fetching followers:', error);
-    res.status(500).json({ message: 'Error fetching followers', error: error.message });
-  }
+    console.error("Error fetching followers:", error);
+    res
+      .status(500)
+      .json({ message: "Error fetching followers", error: error.message });
+  }
 };
 
-export const reportUsers = async(req, res) => {
+export const reportUsers = async (req, res) => {
   try {
     const { userId } = req.user; // Access userId from the authenticated token
     const { username } = req.params;
@@ -390,7 +352,6 @@ export const reportUsers = async(req, res) => {
     // Respond with the updated reportUsers array
     res.status(200).json({ message: "User Reported Successfully" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-
-}
+    res.status(500).json({ error: error.message });
+  }
+};

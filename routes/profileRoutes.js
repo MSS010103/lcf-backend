@@ -23,10 +23,6 @@ const router = express.Router();
 router.post(
   "/profileform",
   authenticateToken,
-  upload.fields([
-    { name: "profileImage", maxCount: 1 },
-    { name: "backgroundImage", maxCount: 1 },
-  ]),
   createProfile
 );
 
