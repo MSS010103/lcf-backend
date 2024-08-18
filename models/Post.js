@@ -8,7 +8,7 @@ const postSchema = new mongoose.Schema({
   postContent: { type: String, required: true },
   profileimageUrl: { type: String },
   imageUrl: { type: String },
-  tags: { type: String,  required: false},
+  tags: { type: String, required: false },
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Array to store user IDs who liked the post
   shares: { type: Number, default: 0 },
   comments: [
@@ -25,6 +25,8 @@ const postSchema = new mongoose.Schema({
       timestamp: { type: Date, default: Date.now },
     },
   ],
+  createdAt: { type: Date, default: Date.now }, // Add createdAt field
+  updatedAt: { type: Date, default: Date.now }, // Add updatedAt field
 });
 
 const Post = mongoose.model("Post", postSchema);
