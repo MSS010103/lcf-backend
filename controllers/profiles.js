@@ -18,8 +18,8 @@ export const createProfile = async (req, res) => {
       industries,
       skillSets,
       employment,
-      profileImage,
-      backgroundImage,
+      // profileImage,
+      // backgroundImage,
     } = req.body;
 
     // Convert fields to appropriate types if necessary
@@ -37,10 +37,10 @@ export const createProfile = async (req, res) => {
       experience,
       education,
       achievements,
-      profileImage,
+      profileImage: req.body.profileImage || null,
       designation,
       company,
-      backgroundImage,
+      backgroundImage: req.body.backgroundImage || null,
       website,
       location,
       industries: parsedIndustries,
