@@ -10,21 +10,23 @@ export const createProfile = async (req, res) => {
       experience,
       education,
       achievements,
-      profileImage, // This will now come from req.body as a URL
       designation,
       company,
-      backgroundImage, // This will now come from req.body as a URL
       website,
       location,
       industries,
       skillSets,
       employment,
+      profileImage,
+      backgroundImage,
     } = req.body;
 
+    // Convert fields to appropriate types if necessary
     const parsedSkillSets =
       typeof skillSets === "string" ? JSON.parse(skillSets) : skillSets;
+    const parsedIndustries =
+      typeof industries === "string" ? JSON.parse(industries) : industries;
 
-    // Create a new profile instance
     const profile = new Profile({
       userId: req.user.userId,
       fullName,
@@ -34,18 +36,17 @@ export const createProfile = async (req, res) => {
       experience,
       education,
       achievements,
-      profileImage: profileImage || null, // Use the URL from req.body
+      profileImage,
       designation,
       company,
-      backgroundImage: backgroundImage || null, // Use the URL from req.body
+      backgroundImage,
       website,
       location,
-      industries,
+      industries: parsedIndustries,
       skillSets: parsedSkillSets,
       employment,
     });
 
-    // Save the profile to the database
     await profile.save();
 
     res.status(200).json({
