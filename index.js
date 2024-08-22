@@ -67,7 +67,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3001",
+    origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -90,6 +90,25 @@ app.use('/api', messageRoutes);
 
 // Storage multer
 app.use('/uploads', express.static('uploads'));
+
+app.get("/api/cities", async (req, res) => {
+  try {
+    const { q } = req.query;
+    const response = await axios.get("https://api.geonames.org/searchJSON", {
+      params: {
+        q,
+        maxRows: 10,
+        username: "hephzibah", // Your GeoNames username
+      },
+    });
+
+    // Send the fetched data back to the frontend
+    res.json(response.data);
+  } catch (error) {
+    console.error("Error fetching city data:", error);
+    res.status(500).json({ error: "Failed to fetch city data" });
+  }
+});
 
 // Saving of profile details
 app.use('/api/profiles', profileRoutes);
