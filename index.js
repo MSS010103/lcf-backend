@@ -68,7 +68,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "https://localhost:3001",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -95,7 +95,7 @@ app.use('/uploads', express.static('uploads'));
 app.get("/api/cities", async (req, res) => {
   try {
     const { q } = req.query;
-    const response = await axios.get("https://api.geonames.org/searchJSON", {
+    const response = await axios.get("https://secure.geonames.org/searchJSON", {
       params: {
         q,
         maxRows: 10,
