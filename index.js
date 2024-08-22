@@ -11,6 +11,7 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import { Server } from "socket.io";
 import http from "http";
+import axios from "axios";
 
 import authRoutes from './routes/authRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
