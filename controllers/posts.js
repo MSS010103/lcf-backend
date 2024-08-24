@@ -4,25 +4,19 @@ import Profile from "../models/Profile.js";
 // Create a new post
 export const createPost = async (req, res) => {
   try {
-    const { postPrivacy, postContent, image, tags } = req.body;
+    const { postPrivacy, postContent, imageUrl, tags } = req.body;
     const userId = req.user.userId;
     const profile = await Profile.findOne({ userId }).populate("userId");
     const username = profile.username;
     const designation = profile.designation;
     const profileimageUrl = profile.profileImage;
-    let imageUrl = "";
-    if (req.file) {
-      imageUrl = req.file.filename; // Save the filename in imageUrl
-    } else {
-      imageUrl = null; // No image provided
-    }
 
     const newPost = new Post({
       userId,
       username,
       designation,
       profileimageUrl,
-      imageUrl,
+      imageUrl, // Directly using the imageUrl received from the frontend
       postPrivacy,
       postContent,
       tags,
