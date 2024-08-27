@@ -2,6 +2,7 @@ import Project from "../models/Project.js";
 import Profile from "../models/Profile.js";
 import User from '../models/User.js';
 import Notification from "../models/Notification.js";
+import Group from "../models/Group.js";
 
 export const createProject = async (req, res) => {
   const formData = req.body;
@@ -56,7 +57,32 @@ export const createProject = async (req, res) => {
     });
 
     await newProject.save();
-    res.status(200).json({ message: "Project form submitted successfully" });
+
+    // Check if a group with this concept already exists
+    let group = await Group.findOne({ name: formData.concept });
+
+    if (!group) {
+      // If the group doesn't exist, create it
+      group = new Group({
+        name: formData.concept,
+        members: [{ userId, username, profileImageUrl: profileimageUrl }],
+      });
+    } else {
+      // If the group exists, add the user to the group
+      group.members.push({
+        userId,
+        username,
+        profileImageUrl: profileimageUrl,
+      });
+    }
+
+    await group.save();
+
+    res
+      .status(200)
+      .json({
+        message: "Project form submitted successfully and group updated",
+      });
   } catch (error) {
     console.error("Error submitting form:", error);
     res.status(500).json({ error: "Server error" });
