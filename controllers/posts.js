@@ -127,45 +127,22 @@ export const commentPost = async (req, res) => {
 // Get the post details
 export const getPostDetails = async (req, res) => {
   try {
-    const { userId } = req.user; // Access userId from the authenticated token
-
-    // Fetch all posts
+    // Fetch all posts from the database and populate the necessary fields
     const posts = await Post.find().populate("userId", "username profileImage");
 
+    // Check if posts were found
     if (!posts || posts.length === 0) {
       return res.status(404).json({ message: "No posts found" });
     }
 
-    // Filter posts
-    const filteredPosts = [];
-    for (let post of posts) {
-      if (
-        post.postPrivacy === "public" ||
-        post.userId._id.toString() === userId
-      ) {
-        // Include all public posts
-        filteredPosts.push(post);
-      } else {
-        // Include private posts only if the requesting user is a follower of the post owner
-        const postOwner = await Profile.findOne({ userId: post.userId._id });
-        if (postOwner.followers.includes(userId)) {
-          filteredPosts.push(post);
-        }
-      }
-    }
-    console.log(filteredPosts);
-
-    if (filteredPosts.length === 0) {
-      return res.status(404).json({ message: "No posts found" });
-    }
-
-    // Send the array of filtered posts to the frontend
-    res.status(200).json({ posts: filteredPosts });
+    // Return all posts
+    res.status(200).json({ posts });
   } catch (error) {
-    console.error("Error fetching user posts:", error);
-    res.status(500).json({ message: "Error fetching user posts" });
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "Error fetching posts" });
   }
 };
+
 
 // Delete post by postId
 export const deletePost = async (req, res) => {
