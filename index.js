@@ -28,6 +28,7 @@ import storyRoutes from './routes/storyRoutes.js';
 import privacyRoutes from './routes/privacyRoutes.js';
 import blockRoutes from './routes/blockRoutes.js'
 import searchRoutes from './routes/searchRoutes.js';
+import groupRoutes from './routes/groupRoutes.js'
 
 import webSocketController from './controllers/webSocket.js';
 
@@ -49,6 +50,9 @@ app.options('*', cors(corsOptions)); // Enable preflight requests for all routes
 
 // Serve static files from the 'uploads' directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Use the group routes
+app.use("/api/groups", groupRoutes);
 
 // MongoDB connection using MongoDB Atlas connection string
 const mongoURI =
