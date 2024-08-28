@@ -1,6 +1,6 @@
 // controllers/communityController.js
 import Community from "../models/Community.js";
-
+import Profile from "../models/Profile.js";
 export const getCommunityMembers = async (req, res) => {
   try {
     const { industry } = req.params;
