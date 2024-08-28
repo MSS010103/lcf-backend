@@ -29,6 +29,7 @@ import privacyRoutes from './routes/privacyRoutes.js';
 import blockRoutes from './routes/blockRoutes.js'
 import searchRoutes from './routes/searchRoutes.js';
 import groupRoutes from './routes/groupRoutes.js'
+import communityRoutes from "./routes/communityRoutes.js";
 
 import webSocketController from './controllers/webSocket.js';
 
@@ -53,6 +54,8 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Use the group routes
 app.use("/api/groups", groupRoutes);
+
+app.use("/api/communities", communityRoutes); // Add community routes
 
 // MongoDB connection using MongoDB Atlas connection string
 const mongoURI =

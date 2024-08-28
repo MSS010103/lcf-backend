@@ -1,5 +1,8 @@
 import Profile from "../models/Profile.js";
 
+// controllers/profileController.js
+import Community from "../models/Community.js";
+
 export const createProfile = async (req, res) => {
   try {
     console.log("Incoming request body:", req.body);
@@ -18,11 +21,8 @@ export const createProfile = async (req, res) => {
       industries,
       skillSets,
       employment,
-      // profileImage,
-      // backgroundImage,
     } = req.body;
 
-    // Convert fields to appropriate types if necessary
     const parsedSkillSets =
       typeof skillSets === "string" ? JSON.parse(skillSets) : skillSets;
     const parsedIndustries =
@@ -50,6 +50,28 @@ export const createProfile = async (req, res) => {
 
     await profile.save();
 
+    // Add user to their respective communities
+    if (parsedIndustries && parsedIndustries.length > 0) {
+      for (const industry of parsedIndustries) {
+        let community = await Community.findOne({ industry });
+
+        if (!community) {
+          // If the community doesn't exist, create a new one
+          community = new Community({
+            industry,
+            members: [profile._id],
+          });
+        } else {
+          // If the community exists, add the member
+          if (!community.members.includes(profile._id)) {
+            community.members.push(profile._id);
+          }
+        }
+
+        await community.save();
+      }
+    }
+
     res.status(200).json({
       message: "Profile submitted successfully",
       url: `/profile/${profile._id}`,
@@ -61,6 +83,7 @@ export const createProfile = async (req, res) => {
       .json({ message: "Error storing data. Please try again later." });
   }
 };
+
 
 // check username availability
 export const checkUsernameAvailability = async (req, res) => {
