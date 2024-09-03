@@ -8,4 +8,5 @@ const router = express.Router();
 // GET /api/communities/:industry - Get all members of a specific community
 router.get("/:industry", authenticateToken, getCommunityMembers);
 
+
 export default router;
