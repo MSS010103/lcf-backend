@@ -24,7 +24,7 @@ export const getCommunityMembers = async (req, res) => {
   }
 };
 
-import Community from "../models/Community.js";
+
 
 // Get chat messages for a specific community
 export const getCommunityChat = async (req, res) => {
